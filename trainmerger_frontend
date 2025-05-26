@@ -1,0 +1,139 @@
+import React, { useState } from "react";
+
+const stationDistances = {
+  CHN: 0,
+  SLM: 350,
+  BLR: 550,
+  KRN: 900,
+  HYB: 1200,
+  NGP: 1600,
+  ITJ: 1900,
+  BPL: 2000,
+  AGA: 2500,
+  NJP: 2700,
+  PTA: 3800,
+  GHY: 4000,
+};
+
+const isValidStation = (station) => stationDistances.hasOwnProperty(station);
+
+const getFilteredAndSortedBogies = (bogies) => {
+  return bogies
+    .filter((b) => stationDistances[b] > stationDistances["HYB"])
+    .sort((a, b) => stationDistances[b] - stationDistances[a]);
+};
+
+const BogieCard = ({ label, isEngine }) => (
+  <div className="flex items-center">
+    <div
+      className={`rounded-2xl shadow-md px-4 py-2 text-white text-center font-semibold whitespace-nowrap ${
+        isEngine ? "bg-gray-800" : "bg-blue-600"
+      }`}
+    >
+      {isEngine ? "🚂 ENGINE" : `🚃 ${label}`}
+    </div>
+    <div className="mx-1 text-xl">{!isEngine && "➔"}</div>
+  </div>
+);
+
+export default function TrainBogieMerger() {
+  const [trainAInput, setTrainAInput] = useState("");
+  const [trainBInput, setTrainBInput] = useState("");
+  const [trainAResult, setTrainAResult] = useState([]);
+  const [trainBResult, setTrainBResult] = useState([]);
+  const [trainABResult, setTrainABResult] = useState([]);
+
+  const handleMerge = () => {
+    const aBogies = trainAInput.trim().split(" ").filter(isValidStation);
+    const bBogies = trainBInput.trim().split(" ").filter(isValidStation);
+
+    const aAfterHYB = getFilteredAndSortedBogies(aBogies);
+    const bAfterHYB = getFilteredAndSortedBogies([...bBogies].reverse());
+
+    setTrainAResult(["ENGINE", ...aAfterHYB]);
+    setTrainBResult(["ENGINE", ...bAfterHYB]);
+
+    if (aAfterHYB.length === 0 && bAfterHYB.length === 0) {
+      setTrainABResult(["JOURNEY_ENDED"]);
+    } else {
+      setTrainABResult(["ENGINE", "ENGINE", ...bAfterHYB, ...aAfterHYB]);
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">🚆 Train Bogie Merger</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="font-semibold">TRAIN_A</label>
+          <textarea
+            value={trainAInput}
+            onChange={(e) => setTrainAInput(e.target.value)}
+            placeholder="Enter bogies separated by space"
+            className="w-full mt-1 border p-2 rounded"
+            rows={3}
+          />
+        </div>
+        <div>
+          <label className="font-semibold">TRAIN_B</label>
+          <textarea
+            value={trainBInput}
+            onChange={(e) => setTrainBInput(e.target.value)}
+            placeholder="Enter bogies separated by space"
+            className="w-full mt-1 border p-2 rounded"
+            rows={3}
+          />
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <button
+          onClick={handleMerge}
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow"
+        >
+          🔄 Merge & Sort
+        </button>
+      </div>
+
+      {trainAResult.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-xl font-bold mb-2">ARRIVAL TRAIN_A</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {trainAResult.map((item, idx) => (
+              <BogieCard key={idx} label={item} isEngine={item === "ENGINE"} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {trainBResult.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-xl font-bold mb-2">ARRIVAL TRAIN_B</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {trainBResult.map((item, idx) => (
+              <BogieCard key={idx} label={item} isEngine={item === "ENGINE"} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {trainABResult.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-xl font-bold mb-2">DEPARTURE TRAIN_AB</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {trainABResult.map((item, idx) => (
+              <div key={idx}>
+                {item === "JOURNEY_ENDED" ? (
+                  <div className="text-red-600 font-semibold">JOURNEY_ENDED</div>
+                ) : (
+                  <BogieCard label={item} isEngine={item === "ENGINE"} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
