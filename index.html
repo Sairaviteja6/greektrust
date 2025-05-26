@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Train Bogie Merger</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>🚆 Train Bogie Merger</h1>
+
+  <div class="input-section">
+    <div>
+      <label>TRAIN_A:</label><br>
+      <textarea id="trainA" placeholder="e.g., ENGINE NDL NDL KRN GHY SLM NJP NGP BLR"></textarea>
+    </div>
+    <div>
+      <label>TRAIN_B:</label><br>
+      <textarea id="trainB" placeholder="e.g., ENGINE NJP GHY AGA PNE MAO BPL PTA"></textarea>
+    </div>
+  </div>
+
+  <button onclick="mergeTrains()">🔄 Merge & Sort</button>
+
+  <div id="results">
+    <div id="arrivalA"></div>
+    <div id="arrivalB"></div>
+    <div id="departureAB"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
